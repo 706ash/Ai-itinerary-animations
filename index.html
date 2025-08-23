@@ -121,7 +121,6 @@
         #send-button {
             color: #fff;
             text-decoration: none;
-            /* Removed border: 3px solid #fff; */
             border: none; /* Remove original border */
             border-radius: 50%; /* Circular */
             font-family: Helvetica, sans-serif; /* From demo */
@@ -158,7 +157,7 @@
             height: 180px; /* Scaled for small circular button */
             border-radius: 79px; /* Scaled for small circular button */
             background-color: #fff;
-            top: 70%; /* From demo */
+            top: 90%; /* Start mostly hidden */
             left: 50%; /* From demo */
             animation: wave 5s infinite linear;
             transition: all 1s;
@@ -179,7 +178,7 @@
         }
 
         #send-button:hover:before {
-            top: 0; /* Bring wave to top on hover */
+            top: 50%; /* Bring wave to semi-fill on hover */
         }
 
         #send-button i {
