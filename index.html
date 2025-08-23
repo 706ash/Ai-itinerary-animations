@@ -185,6 +185,40 @@
             /* Remixicon styling */
             line-height: 1;
         }
+
+        #emoji-picker {
+            position: absolute; /* Will be positioned dynamically by JS */
+            background: rgba(255, 255, 255, 0.1); /* More transparent background */
+            backdrop-filter: blur(10px); /* Glassmorphic blur effect */
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
+            border-radius: 10px;
+            box-shadow:
+                0 0 0 2px rgba(0, 188, 212, 0.7), /* Inner blue glow */
+                0 0 0 4px rgba(0, 188, 212, 0.5), /* Middle blue glow */
+                0 0 0 6px rgba(0, 188, 212, 0.3), /* Outer blue glow */
+                0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Existing glassmorphic shadow */
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            z-index: 103; /* Above chat-input */
+        }
+
+        .emoji-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .emoji-button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -195,6 +229,10 @@
     <div id="chat-input" contenteditable="true" placeholder="Type your message here..."></div>
 
     <button id="send-button"><i class="ri-water-fill"></i></button>
+
+    <div id="emoji-picker" style="display: none;">
+        <!-- Emojis will be populated here by JavaScript -->
+    </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="jquery.ripples.js"></script>
@@ -292,6 +330,188 @@
                     // Trigger a big ripple
                     ripplesInstance.drop(rippleX, rippleY, 20, 0.2); // Smaller radius, reduced perturbance for cleanliness
                 }
+            }
+        });
+
+        // Emoji data (a simple list for demonstration)
+        const emojis = [
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
+            '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚',
+            '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔',
+            '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥',
+            '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮',
+            '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓',
+            '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺',
+            '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣',
+            '😞', '😓', '😩', '😫', '😤', '😡', '😠', '🤬', '😈', '👿',
+            '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖',
+            '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'
+        ];
+
+        const chatInput = $('#chat-input');
+        const emojiPicker = $('#emoji-picker');
+        let lastColonIndex = -1;
+
+        // Function to get caret position in contenteditable div
+        function getCaretPosition(element) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(element[0]);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                return preCaretRange.toString().length;
+            }
+            return 0;
+        }
+
+        // Function to set caret position in contenteditable div
+        function setCaretPosition(element, pos) {
+            const range = document.createRange();
+            const selection = window.getSelection();
+            let charCount = 0;
+            let found = false;
+
+            function traverseNodes(node) {
+                if (found) return;
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const nextCharCount = charCount + node.length;
+                    if (pos <= nextCharCount) {
+                        range.setStart(node, pos - charCount);
+                        range.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        found = true;
+                    }
+                    charCount = nextCharCount;
+                } else {
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        traverseNodes(node.childNodes[i]);
+                    }
+                }
+            }
+            traverseNodes(element[0]);
+        }
+
+
+        // Populate emoji picker
+        function populateEmojiPicker() {
+            emojiPicker.empty();
+            emojis.forEach(emoji => {
+                const button = $('<button>')
+                    .addClass('emoji-button')
+                    .text(emoji)
+                    .on('click', function() {
+                        insertEmoji(emoji);
+                        emojiPicker.hide();
+                    });
+                emojiPicker.append(button);
+            });
+        }
+
+        // Insert emoji into contenteditable div
+        function insertEmoji(emoji) {
+            const currentText = chatInput.text();
+            const caretPos = getCaretPosition(chatInput);
+
+            // Remove the colon and any text after it that was part of the trigger
+            let textBeforeColon = currentText.substring(0, lastColonIndex);
+            let textAfterColon = currentText.substring(caretPos); // Keep text after current caret
+
+            // Reconstruct the text
+            const newText = textBeforeColon + emoji + textAfterColon;
+            chatInput.text(newText);
+
+            // Set caret position after the inserted emoji
+            setCaretPosition(chatInput, lastColonIndex + emoji.length);
+
+            // Reset lastColonIndex
+            lastColonIndex = -1;
+        }
+
+        // Show/hide and position emoji picker
+        function showEmojiPicker(coords) {
+            // Temporarily show to get accurate height
+            emojiPicker.css({ visibility: 'hidden', display: 'block' });
+            const pickerHeight = emojiPicker.outerHeight();
+            emojiPicker.css({ visibility: 'visible', display: 'none' }); // Hide it again
+
+            const chatInputHeight = chatInput.outerHeight();
+            const chatInputBottom = 30; // From CSS: #chat-input has bottom: 30px;
+
+            // Calculate bottom position for the emoji picker
+            const pickerBottom = chatInputBottom + chatInputHeight + 10; // 10px gap above chat input
+
+            emojiPicker.css({
+                bottom: pickerBottom,
+                left: coords.x, // Keep left relative to caret
+                top: 'auto' // Clear top property
+            }).show();
+            populateEmojiPicker();
+        }
+
+        function hideEmojiPicker() {
+            emojiPicker.hide();
+            lastColonIndex = -1; // Reset when hidden
+        }
+
+        // Listen for input events on the contenteditable div
+        chatInput.on('input', function(e) {
+            const text = chatInput.text();
+            const caretPos = getCaretPosition(chatInput);
+
+            // Check if the last character typed is a colon
+            if (text.charAt(caretPos - 1) === ':') {
+                lastColonIndex = caretPos - 1;
+                const caretCoords = getCaretCoordinates(); // Re-using existing function
+                if (caretCoords) {
+                    showEmojiPicker(caretCoords);
+                }
+            } else if (lastColonIndex !== -1 && (caretPos <= lastColonIndex || text.charAt(lastColonIndex) !== ':')) {
+                // If colon was typed but then deleted or moved away from, hide picker
+                hideEmojiPicker();
+            } else if (lastColonIndex !== -1 && text.charAt(lastColonIndex) === ':') {
+                // If still within the colon context, but not typing a new colon, keep picker open
+                // but update its position if needed (e.g., if user types more after colon)
+                const caretCoords = getCaretCoordinates();
+                if (caretCoords) {
+                    emojiPicker.css({
+                        top: caretCoords.y + 20,
+                        left: caretCoords.x
+                    });
+                }
+            } else {
+                // Hide if no colon context
+                hideEmojiPicker();
+            }
+
+            // Existing ripples logic
+            const backgroundContainer = $('#background-image-container');
+            if (backgroundContainer) {
+                const ripplesInstance = backgroundContainer.data('ripples');
+                if (ripplesInstance) {
+                    const caretCoords = getCaretCoordinates();
+                    if (caretCoords) {
+                        const bgOffset = backgroundContainer.offset();
+                        const rippleX = caretCoords.x - bgOffset.left;
+                        const rippleY = caretCoords.y - bgOffset.top;
+                        ripplesInstance.drop(rippleX, rippleY, 20, 0.04);
+                    }
+                }
+            }
+        });
+
+        // Hide emoji picker when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#emoji-picker').length && !$(e.target).closest('#chat-input').length) {
+                hideEmojiPicker();
+            }
+        });
+
+        // Hide emoji picker on escape key
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideEmojiPicker();
             }
         });
     </script>
