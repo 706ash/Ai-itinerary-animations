@@ -121,34 +121,42 @@
         #send-button {
             color: #fff;
             text-decoration: none;
-            border: 3px solid #fff;
-            border-radius: 18px; /* From demo */
+            /* Removed border: 3px solid #fff; */
+            border: none; /* Remove original border */
+            border-radius: 50%; /* Circular */
             font-family: Helvetica, sans-serif; /* From demo */
             font-weight: 600;
-            font-size: 1.8em; /* Icon size */
+            font-size: 1.5em; /* Adjusted icon size for smaller button */
             line-height: 1; /* Adjust line height for icon centering */
             position: fixed;
             bottom: 30px; /* Align with chat input */
-            /* Calculate right position based on max-width of input and button width */
-            right: calc(50% - 250px + 120px); /* (max-width / 2) + (button-width / 2) + some_offset */
-            width: 120px; /* Adjusted width for icon and padding */
-            height: 60px; /* Adjusted height for icon and padding */
+            left: calc(50% + 250px + 10px); /* Position to the right of input with a gap */
+            width: 50px; /* Small size */
+            height: 50px; /* Small size */
             overflow: hidden;
             transition: all 0.3s;
             z-index: 102;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #00bcd4; /* Solid background for button */
+            /* Themed background and shadow */
+            box-shadow:
+                0 0 0 2px rgba(0, 188, 212, 0.7), /* Inner blue glow */
+                0 0 0 4px rgba(0, 188, 212, 0.5), /* Middle blue glow */
+                0 0 0 6px rgba(0, 188, 212, 0.3), /* Outer blue glow */
+                0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Existing glassmorphic shadow */
+            background: rgba(255, 255, 255, 0.1); /* Transparent background */
+            backdrop-filter: blur(10px); /* Glassmorphic blur effect */
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
             cursor: pointer;
         }
 
         #send-button:before {
             content: '';
             position: absolute;
-            width: 200px; /* Scaled from 320px in demo */
-            height: 200px; /* Scaled from 320px in demo */
-            border-radius: 88px; /* Scaled from 140px in demo */
+            width: 180px; /* Scaled for small circular button */
+            height: 180px; /* Scaled for small circular button */
+            border-radius: 79px; /* Scaled for small circular button */
             background-color: #fff;
             top: 70%; /* From demo */
             left: 50%; /* From demo */
@@ -167,11 +175,11 @@
         }
 
         #send-button:hover {
-            color: #d1a1ff; /* From demo */
+            color: #00bcd4; /* Change icon color to match theme */
         }
 
         #send-button:hover:before {
-            top: 25px; /* From demo */
+            top: 0; /* Bring wave to top on hover */
         }
 
         #send-button i {
@@ -184,10 +192,6 @@
 <body>
 
     <div id="background-image-container"></div>
-
-    <div id="typing-indicator">
-        <span></span><span></span><span></span>
-    </div>
 
     <div id="chat-input" contenteditable="true" placeholder="Type your message here..."></div>
 
