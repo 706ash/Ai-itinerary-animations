@@ -265,6 +265,35 @@
             chatInputDiv.textContent = chatInputDiv.getAttribute('placeholder');
             chatInputDiv.classList.add('placeholder-active');
         }
+
+        // Click event for the send button to create a big ripple
+        $('#send-button').on('click', function() {
+            const backgroundContainer = $('#background-image-container');
+            const sendButton = $('#send-button');
+
+            if (backgroundContainer) {
+                const ripplesInstance = backgroundContainer.data('ripples');
+
+                if (ripplesInstance) {
+                    const buttonOffset = sendButton.offset();
+                    const buttonWidth = sendButton.outerWidth();
+                    const buttonHeight = sendButton.outerHeight();
+
+                    const bgOffset = backgroundContainer.offset();
+
+                    // Calculate center of the button relative to the background container
+                    const rippleX = (buttonOffset.left + buttonWidth / 2) - bgOffset.left;
+                    const rippleY = (buttonOffset.top + buttonHeight / 2) - bgOffset.top;
+
+                    console.log('Button center (relative to document):', buttonOffset.left + buttonWidth / 2, buttonOffset.top + buttonHeight / 2);
+                    console.log('Background offset (relative to document):', bgOffset.left, bgOffset.top);
+                    console.log('Calculated ripple coordinates (relative to background):', rippleX, rippleY);
+
+                    // Trigger a big ripple
+                    ripplesInstance.drop(rippleX, rippleY, 20, 0.2); // Smaller radius, reduced perturbance for cleanliness
+                }
+            }
+        });
     </script>
 </body>
 
