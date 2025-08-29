@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beach Waves</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+        body {
+            background-image: url('maldives.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Your ripples plugin file -->
+    <script src="jquery.ripples.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Apply ripple effect to the body
+            $('body').ripples({
+                resolution: 1024, /* Increased resolution for better detail */
+                dropRadius: 30, /* Initial value, will be overridden for the wave */
+                perturbance: 0.03, /* Initial value, will be overridden for the wave */
+                interactive: false
+            });
+
+            const ripplesInstance = $('body').data('ripples');
+            console.log('Ripples instance:', ripplesInstance);
+
+            const bodyWidth = $('body').width();
+            const bodyHeight = $('body').height();
+            console.log('Body dimensions:', bodyWidth, 'x', bodyHeight);
+
+            function simulateWave() {
+                console.log('simulateWave called');
+                const waveX = bodyWidth * 0.1; // Start from 10% from the left edge
+                const waveY = bodyHeight * 0.7; // Position vertically (e.g., 70% down)
+                
+                // *** TEST VALUES: These are extreme to force visibility ***
+                const waveRadius = 50; // Smaller radius to make it more concentrated
+                const wavePerturbance = 0.5; // Very high perturbance to make it obvious
+
+                console.log('Wave parameters (TESTING):', { waveX, waveY, waveRadius, wavePerturbance });
+
+                if (ripplesInstance) {
+                    ripplesInstance.drop(waveX, waveY, waveRadius, wavePerturbance);
+                    console.log('Ripple dropped!');
+                } else {
+                    console.error('Ripples instance is not available.');
+                }
+            }
+
+            // Trigger a wave every 5 seconds
+            setInterval(simulateWave, 5000);
+
+            // Initial wave on load
+            simulateWave();
+        });
+    </script>
+
+</body>
+</html>
