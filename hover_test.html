@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rive Fullscreen Test</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #111;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      width: 80vw;
+      height: 80vh;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="riveCanvas"></canvas>
+
+  <script src="https://unpkg.com/@rive-app/canvas@2.7.0"></script>
+  <script>
+    let numberInput; // will store "Number 1"
+
+    const r = new rive.Rive({
+      src: "bottle_hover.riv", // your .riv file
+      canvas: document.getElementById("riveCanvas"),
+      artboard: "Desktop - 1",
+      stateMachines: ["bottle hover"],
+      autoplay: true,
+      layout: new rive.Layout({
+        fit: rive.Fit.Cover,
+        alignment: rive.Alignment.TopLeft
+      }),
+      onLoad: () => {
+        r.resizeDrawingSurfaceToCanvas();
+
+        // Get state machine inputs after load
+        const inputs = r.stateMachineInputs("bottle hover");
+        console.log("Inputs found:", inputs.map(i => ({ name: i.name, type: i.type })));
+
+        // Find our Number input
+        numberInput = inputs.find(i => i.name === "Number 1");
+
+        if (numberInput) {
+          console.log("✅ Found Number 1 input");
+        } else {
+          console.error("❌ Could not find 'Number 1'");
+        }
+      },
+    });
+
+    // On click, set Number 1 to 2
+    document.getElementById("riveCanvas").addEventListener("click", () => {
+      if (numberInput) {
+        numberInput.value = 2;
+        console.log("Number 1 set to 2");
+      }
+    });
+
+    // Keep canvas responsive
+    window.addEventListener("resize", () => r.resizeDrawingSurfaceToCanvas());
+  </script>
+</body>
+</html>
